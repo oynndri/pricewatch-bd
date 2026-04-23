@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Submit Price — PriceWatch BD</title>
+    <meta name="description" content="Submit today's market price for essential products and help the community." />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        .submit-wrap {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 32px;
+            align-items: start;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .sidebar-tips {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .tip-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tip-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 10px;
+        }
+
+        .tip-card li {
+            font-size: .88rem;
+            color: var(--text-muted);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tip-card li:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 900px) {
+            .submit-wrap {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="markets.html">Markets</a>
+                <a href="trending.html">Trending</a>
+                <a href="submit.html" class="active">Submit Price</a>
+            </nav>
+            <div class="nav-right" id="navRight"></div>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-banner">
+        <div class="container">
+            <h1>Submit a Price Update</h1>
+            <p>Help your community by reporting today's market prices</p>
+        </div>
+    </div>
+
+    <main class="page" style="padding-top:32px">
+        <div class="container">
+            <div class="submit-wrap">
+                <!-- Form -->
+                <div class="form-card">
+                    <h2 class="form-title">📝 Price Submission</h2>
+                    <p class="form-sub">Fill in the price you observed at the market today. Your contribution helps
+                        thousands of people.</p>
+
+                    <div
+                        style="background:var(--yellow-50);border:1px solid var(--yellow-200);border-radius:var(--radius);padding:12px 16px;margin-bottom:20px;display:flex;gap:12px;align-items:center">
+                        <span style="font-size:1.4rem">🕒</span>
+                        <div style="font-size:.85rem;color:var(--gray-700)">
+                            <strong>Verification Required:</strong> Your submission will be reviewed by an admin before
+                            appearing as an "Official Price" on the dashboard.
+                        </div>
+                    </div>
+
+                    <form id="submitForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="productSelect">Product *</label>
+                                <select id="productSelect" required>
+                                    <option value="">Select product...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="marketSelect">Market *</label>
+                                <select id="marketSelect" required>
+                                    <option value="">Select market...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="priceInput">Price (৳) *</label>
+                                <input type="number" id="priceInput" placeholder="e.g. 68" min="1" step="0.5"
+                                    required />
+                            </div>
+                            <div class="form-group">
+                                <label>Unit</label>
+                                <input type="text" id="unitDisplay" disabled placeholder="Auto-filled"
+                                    style="background:var(--gray-100)" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateInput">Date Observed *</label>
+                            <input type="date" id="dateInput" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="nameInput">Your Name (optional)</label>
+                            <input type="text" id="nameInput" placeholder="Anonymous contributor" />
+                        </div>
+                        <div class="form-group">
+                            <label for="noteInput">Additional Note</label>
+                            <textarea id="noteInput" placeholder="Any extra context about this price..."></textarea>
+                        </div>
+
+                        <!-- Preview -->
+                        <div id="preview"
+                            style="display:none;background:var(--green-50);border:1.5px solid var(--green-300);border-radius:var(--radius);padding:16px;margin-bottom:20px">
+                            <p style="font-size:.88rem;font-weight:600;color:var(--green-700);margin-bottom:8px">📋
+                                Submission Preview</p>
+                            <div style="font-size:.9rem;color:var(--gray-700)" id="previewContent"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">✅ Submit Price
+                            Update</button>
+                        <p style="font-size:.82rem;color:var(--text-muted);text-align:center;margin-top:12px">Data is
+                            community-reviewed before going live</p>
+                    </form>
+
+                    <div id="successMsg" style="display:none;text-align:center;padding:32px 0">
+                        <div style="font-size:3.5rem;margin-bottom:12px">🎉</div>
+                        <h3 style="font-size:1.3rem;font-weight:700;color:var(--green-700)">Price Submitted!</h3>
+                        <p style="color:var(--text-muted);margin:8px 0 20px">Thank you for contributing to PriceWatch
+                            BD. Your submission is under review.</p>
+                        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+                            <button onclick="resetForm()" class="btn btn-outline">Submit Another</button>
+                            <a href="index.html" class="btn btn-primary">Go to Home</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar-tips">
+                    <div class="tip-card">
+                        <h3>📌 Submission Tips</h3>
+                        <ul>
+                            <li>✅ Submit prices you personally observed</li>
+                            <li>📅 Only submit today's prices</li>
+                            <li>🏪 Choose the exact market you visited</li>
+                            <li>💰 Enter price per unit (kg, liter, dozen)</li>
+                            <li>🔍 Double-check the amount before submitting</li>
+                        </ul>
+                    </div>
+                    <div class="tip-card">
+                        <h3>🏆 Top Contributors</h3>
+                        <ul id="contributorsList">
+                            <div class="loading" style="padding:10px 0">
+                                <div class="spinner"></div>
+                            </div>
+                        </ul>
+                    </div>
+                    <div class="tip-card"
+                        style="background:linear-gradient(135deg,var(--green-600),var(--green-800));border:none">
+                        <h3 style="color:white">🌟 Join the Community</h3>
+                        <p style="font-size:.88rem;color:rgba(255,255,255,.8);margin-bottom:16px">Create an account to
+                            track your contributions and earn badges!</p>
+                        <a href="auth.html" class="btn btn-yellow" style="display:block;text-align:center">Sign Up Free
+                            →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        style="background:var(--green-900);color:rgba(255,255,255,.6);text-align:center;padding:24px;font-size:.88rem">
+        <p>🛒 <strong style="color:white">PriceWatch BD</strong> — Community-powered price tracking</p>
+    </footer>
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="app.js"></script>
+    <script>
+        PWBD.initNav();
+
+        let products = [], markets = [];
+
+        async function initForm() {
+            [products, markets] = await Promise.all([PWBD.apiFetch('/products'), PWBD.apiFetch('/markets')]);
+            const pSel = document.getElementById('productSelect');
+            const mSel = document.getElementById('marketSelect');
+            products.forEach(p => pSel.innerHTML += `<option value="${p.id}" data-unit="${p.unit}">${p.icon} ${p.nameEn} (${p.name})</option>`);
+            markets.forEach(m => mSel.innerHTML += `<option value="${m.id}">${m.nameEn} — ${m.location}</option>`);
+
+            loadContributors();
+
+            // Pre-fill from URL
+            const pid = new URLSearchParams(window.location.search).get('product');
+            if (pid) pSel.value = pid;
+
+            // Auto-fill unit
+            pSel.addEventListener('change', () => {
+                const opt = pSel.options[pSel.selectedIndex];
+                document.getElementById('unitDisplay').placeholder = opt?.dataset.unit ? `Per ${opt.dataset.unit}` : 'Auto-filled';
+            });
+
+            // Today's date default
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+
+            // Live preview
+            ['productSelect', 'marketSelect', 'priceInput', 'nameInput'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePreview);
+                document.getElementById(id).addEventListener('change', updatePreview);
+            });
+        }
+
+        async function loadContributors() {
+            const list = document.getElementById('contributorsList');
+            const contributors = await PWBD.apiFetch('/contributors');
+            if (!contributors || !contributors.length) {
+                list.innerHTML = '<li style="color:var(--text-muted);font-size:.8rem">No contributions yet</li>';
+                return;
+            }
+            const medals = ['🥇', '🥈', '🥉', '👤', '👤'];
+            list.innerHTML = contributors.map((c, i) => `
+                <li>
+                    ${medals[i] || '👤'} ${c.name} 
+                    &nbsp;<strong style="color:var(--green-700)">${c.contributions} prices</strong>
+                </li>
+            `).join('');
+        }
+
+        function updatePreview() {
+            const pId = document.getElementById('productSelect').value;
+            const mId = document.getElementById('marketSelect').value;
+            const price = document.getElementById('priceInput').value;
+            const preview = document.getElementById('preview');
+            if (!pId || !mId || !price) { preview.style.display = 'none'; return; }
+            const p = products.find(x => x.id == pId), m = markets.find(x => x.id == mId);
+            if (!p || !m) return;
+            const opt = document.getElementById('productSelect').options[document.getElementById('productSelect').selectedIndex];
+            preview.style.display = 'block';
+            document.getElementById('previewContent').innerHTML = `
+    <strong>${p.icon} ${p.nameEn}</strong> at <strong>${m.nameEn}</strong><br>
+    Price: <strong style="color:var(--green-700);font-size:1.1rem">৳${price}</strong> per ${p.unit}`;
+        }
+
+        document.getElementById('submitForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.textContent = 'Submitting...'; btn.disabled = true;
+            const data = {
+                productId: document.getElementById('productSelect').value,
+                marketId: document.getElementById('marketSelect').value,
+                price: document.getElementById('priceInput').value,
+                submittedBy: document.getElementById('nameInput').value || (PWBD.currentUser?.name ?? 'anonymous'),
+            };
+            const res = await PWBD.apiFetch('/prices', { method: 'POST', body: JSON.stringify(data) });
+            if (res?.success) {
+                document.getElementById('submitForm').style.display = 'none';
+                document.getElementById('successMsg').style.display = 'block';
+            } else {
+                PWBD.showToast('Submission failed. Please try again.', 'error');
+                btn.textContent = '✅ Submit Price Update'; btn.disabled = false;
+            }
+        });
+
+        function resetForm() {
+            document.getElementById('submitForm').reset();
+            document.getElementById('submitForm').style.display = 'block';
+            document.getElementById('successMsg').style.display = 'none';
+            document.getElementById('preview').style.display = 'none';
+            document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+        }
+
+        initForm();
+    </script>
+</body>
+
+</html>

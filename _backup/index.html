@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PriceWatch BD — Track Daily Market Prices in Bangladesh</title>
+  <meta name="description"
+    content="Track and compare daily market prices of essential products in Bangladesh. Rice, eggs, vegetables, oil prices updated daily from major markets." />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .search-results-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .15);
+      z-index: 100;
+      overflow: hidden;
+      display: none;
+    }
+
+    .search-results-dropdown.show {
+      display: block;
+    }
+
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .search-result-item:hover {
+      background: var(--green-50);
+    }
+
+    .sr-icon {
+      font-size: 1.4rem;
+    }
+
+    .sr-name {
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--gray-800);
+    }
+
+    .sr-price {
+      font-size: .85rem;
+      color: var(--text-muted);
+    }
+
+    .marquee-wrap {
+      background: var(--green-700);
+      padding: 10px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .marquee-inner {
+      display: inline-flex;
+      gap: 0;
+      animation: marquee 30s linear infinite;
+    }
+
+    .marquee-inner:hover {
+      animation-play-state: paused;
+    }
+
+    .marquee-item {
+      padding: 0 32px;
+      font-size: .88rem;
+      color: rgba(255, 255, 255, .9);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-right: 1px solid rgba(255, 255, 255, .2);
+    }
+
+    @keyframes marquee {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+      </a>
+      <nav class="nav-links" id="navLinks">
+        <a href="index.html" class="active">Home</a>
+        <a href="products.html">Products</a>
+        <a href="markets.html">Markets</a>
+        <a href="trending.html">Trending</a>
+        <a href="submit.html">Submit Price</a>
+      </nav>
+      <div class="nav-right" id="navRight">
+        <a href="auth.html" class="btn-nav-login">Login</a>
+        <a href="submit.html" class="btn-nav-submit">+ Submit Price</a>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Ticker -->
+  <div class="marquee-wrap" style="margin-top:var(--nav-h)" id="tickerWrap">
+    <div class="marquee-inner" id="tickerInner">
+      <span class="marquee-item">⏳ Loading live prices...</span>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge"><span class="dot"></span> Live Price Data — Updated Daily</div>
+    <h1>Track <span>Bazaar Prices</span> Across Bangladesh</h1>
+    <p>Compare real-time prices of rice, eggs, vegetables, oil & more from major markets in your city.</p>
+    <div class="search-box" style="position:relative">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="heroSearch" placeholder="Search: rice, onion, egg, oil..." autocomplete="off" />
+      <button class="search-btn" id="searchBtn">Search</button>
+      <div class="search-results-dropdown" id="searchDropdown"></div>
+    </div>
+    <div class="hero-stats" id="heroStats">
+      <div class="hero-stat">
+        <div class="num">—</div>
+        <div class="lbl">Products</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">—</div>
+        <div class="lbl">Markets</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">—</div>
+        <div class="lbl">Price Updates</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">—</div>
+        <div class="lbl">Contributors</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main content -->
+  <main class="page" style="padding-top:0">
+    <div class="container">
+
+      <!-- Category filter + product cards -->
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Popular <span>Products</span></h2>
+            <p class="section-sub">Today's average prices from all tracked markets</p>
+          </div>
+          <a href="products.html" class="view-all">View all →</a>
+        </div>
+        <div class="category-pills">
+          <button class="pill active" data-cat="">All</button>
+          <button class="pill" data-cat="rice">🌾 Rice</button>
+          <button class="pill" data-cat="vegetables">🥬 Vegetables</button>
+          <button class="pill" data-cat="eggs">🥚 Eggs</button>
+          <button class="pill" data-cat="oil">🫙 Oil</button>
+          <button class="pill" data-cat="lentils">🫘 Lentils</button>
+          <button class="pill" data-cat="others">🍬 Others</button>
+        </div>
+        <div class="cards-grid" id="productsGrid">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Price Comparison Table -->
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Market <span>Comparison</span></h2>
+            <p class="section-sub">Compare latest prices across top markets</p>
+          </div>
+          <a href="markets.html" class="view-all">All markets →</a>
+        </div>
+        <div class="table-wrap" id="comparisonTable">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trending -->
+      <section class="section">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Price <span>Trends</span></h2>
+            <p class="section-sub">7-day price movement at a glance</p>
+          </div>
+          <a href="trending.html" class="view-all">Full dashboard →</a>
+        </div>
+        <div class="cards-grid" id="trendingGrid">
+          <div class="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer
+    style="background:var(--green-900);color:rgba(255,255,255,.6);text-align:center;padding:28px;font-size:.88rem">
+    <p>🛒 <strong style="color:white">PriceWatch BD</strong> — Empowering consumers with transparent market prices</p>
+    <p style="margin-top:8px">Data contributed by the community · Updated daily</p>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+  <script>
+    PWBD.initNav();
+
+    let allProducts = [];
+
+    async function loadStats() {
+      const stats = await PWBD.apiFetch('/stats');
+      if (!stats) return;
+      const nums = document.querySelectorAll('.hero-stat .num');
+      const vals = [stats.totalProducts, stats.totalMarkets, stats.totalPriceUpdates, stats.totalUsers];
+      nums.forEach((el, i) => el.textContent = vals[i]);
+    }
+
+    async function loadTicker(products) {
+      const inner = document.getElementById('tickerInner');
+      if (!products.length) return;
+      const items = products.filter(p => p.avgPrice).slice(0, 8).map(p =>
+        `<span class="marquee-item">${p.icon} ${p.nameEn} <strong style="color:var(--yellow-300)">৳${p.avgPrice}</strong>/${p.unit} ${p.trend > 0 ? '▲' : p.trend < 0 ? '▼' : '→'}</span>`
+      ).join('');
+      inner.innerHTML = items + items; // doubled for seamless loop
+    }
+
+    async function loadProducts(cat = '') {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+      const url = cat ? `/products?category=${cat}` : '/products';
+      const products = await PWBD.apiFetch(url);
+      allProducts = products || [];
+      if (cat === '') loadTicker(allProducts);
+      PWBD.renderProductCards(allProducts.slice(0, 8), grid);
+    }
+
+    async function loadComparison() {
+      const [prices, products, markets] = await Promise.all([
+        PWBD.apiFetch('/prices?verified=1'),
+        PWBD.apiFetch('/products'),
+        PWBD.apiFetch('/markets'),
+      ]);
+      if (!prices || !products || !markets) return;
+
+      // Build a table: rows = top products, cols = top markets
+      const topProducts = products.filter(p => p.avgPrice).slice(0, 6);
+      const topMarkets = markets.slice(0, 5);
+
+      const priceMap = {};
+      prices.forEach(e => { priceMap[`${e.productId}_${e.marketId}`] = e.price; });
+
+      const table = document.getElementById('comparisonTable');
+      table.innerHTML = `<table>
+    <thead><tr>
+      <th>Product</th>
+      ${topMarkets.map(m => `<th>${m.nameEn}</th>`).join('')}
+      <th>Avg ৳</th>
+    </tr></thead>
+    <tbody>
+    ${topProducts.map(p => `<tr>
+      <td><div class="td-product"><span class="td-icon">${p.icon}</span><div><div style="font-weight:600">${p.nameEn}</div><div style="font-size:.8rem;color:var(--text-muted)">${p.name} · per ${p.unit}</div></div></div></td>
+      ${topMarkets.map(m => {
+        const pr = priceMap[`${p.id}_${m.id}`];
+        return `<td style="font-weight:600;color:var(--green-700)">${pr ? '৳' + pr : '<span style="color:var(--gray-300)">—</span>'}</td>`;
+      }).join('')}
+      <td style="font-weight:700;color:var(--green-800)">৳${p.avgPrice}</td>
+    </tr>`).join('')}
+    </tbody></table>`;
+    }
+
+    async function loadTrending() {
+      const trending = await PWBD.apiFetch('/trending');
+      if (!trending) return;
+      const grid = document.getElementById('trendingGrid');
+      const top6 = trending.slice(0, 6);
+      grid.innerHTML = top6.map(p => `
+    <div class="product-card fade-up" onclick="window.location='trending.html'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="card-icon">${p.icon}</span>
+        ${PWBD.trendBadge(p.trend)}
+      </div>
+      <div class="card-name">${p.nameEn}</div>
+      <div class="card-price-row" style="margin-top:8px">
+        <div class="card-price">৳${p.avgPrice ?? '—'}</div>
+      </div>
+      <canvas class="mini-chart" style="height:50px;margin-top:14px" id="chart_${p.id}"></canvas>
+    </div>`).join('');
+      // Draw charts after render
+      requestAnimationFrame(() => {
+        top6.forEach(p => {
+          const canvas = document.getElementById('chart_' + p.id);
+          PWBD.drawSparkline(canvas, p.history, p.trend >= 0 ? '#ef4444' : '#16a34a');
+        });
+      });
+    }
+
+    // Category pill filter
+    document.querySelectorAll('.pill[data-cat]').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.pill[data-cat]').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        loadProducts(pill.dataset.cat);
+      });
+    });
+
+    // Search
+    const searchInput = document.getElementById('heroSearch');
+    const dropdown = document.getElementById('searchDropdown');
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q || !allProducts.length) { dropdown.classList.remove('show'); return; }
+      const results = allProducts.filter(p => p.nameEn.toLowerCase().includes(q) || p.name.includes(q)).slice(0, 6);
+      if (!results.length) { dropdown.classList.remove('show'); return; }
+      dropdown.innerHTML = results.map(p => `
+    <div class="search-result-item" onclick="window.location='product.html?id=${p.id}'">
+      <span class="sr-icon">${p.icon}</span>
+      <div>
+        <div class="sr-name">${p.nameEn} <span style="font-weight:400;color:var(--text-muted)">(${p.name})</span></div>
+        <div class="sr-price">Avg ৳${p.avgPrice ?? 'N/A'} / ${p.unit}</div>
+      </div>
+      ${PWBD.trendBadge(p.trend)}
+    </div>`).join('');
+      dropdown.classList.add('show');
+    });
+    document.getElementById('searchBtn').addEventListener('click', () => {
+      const q = searchInput.value.trim();
+      if (q) window.location = `products.html?q=${encodeURIComponent(q)}`;
+    });
+    searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('searchBtn').click(); });
+    document.addEventListener('click', e => { if (!e.target.closest('.search-box')) dropdown.classList.remove('show'); });
+
+    // Init
+    loadStats();
+    loadProducts();
+    loadComparison();
+    loadTrending();
+  </script>
+</body>
+
+</html>

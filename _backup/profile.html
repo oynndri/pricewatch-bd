@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — PriceWatch BD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+        href="https//fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap">
+</head>
+
+<body class="bg-gray-50">
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="markets.html">Markets</a>
+                <a href="trending.html">Trending</a>
+            </div>
+            <div class="nav-right" id="navRight">
+                <!-- Dynamic Nav -->
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-banner">
+        <div class="container">
+            <h1>User Profile</h1>
+            <p>Your contributions and account summary</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="detail-header">
+            <div class="detail-icon" id="profileAvatar">A</div>
+            <div class="detail-meta">
+                <h1 id="profileName">Loading...</h1>
+                <h2 id="profileEmail">...</h2>
+                <div class="trend-badge flat" id="profileRole">Regular User</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="ico">📊</span>
+                <span class="val" id="statsSubmissions">0</span>
+                <span class="lbl">Price Submissions</span>
+            </div>
+            <div class="stat-card">
+                <span class="ico">✅</span>
+                <span class="val" id="statsVerified">0</span>
+                <span class="lbl">Verified Prices</span>
+            </div>
+            <div class="stat-card">
+                <span class="ico">🏆</span>
+                <span class="val">#124</span>
+                <span class="lbl">Contributor Rank</span>
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <h3 style="padding: 20px; border-bottom: 1px solid var(--border)">Account Information</h3>
+            <table class="profile-table">
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 600; width: 200px">Member Since</td>
+                        <td id="joinDate">March 2024</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600">Location</td>
+                        <td>Dhaka, Bangladesh</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600">Verification Status</td>
+                        <td><span class="market-badge wholesale">Active</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Fix: Use PWBD namespace
+            await PWBD.initNav();
+
+            // Initial check from local state
+            let user = PWBD.currentUser;
+            if (!user) {
+                window.location.replace('auth.html');
+                return;
+            }
+
+            // Render basic info (optimistic)
+            renderProfile(user);
+
+            // Fetch latest profile stats from backend
+            const res = await PWBD.apiFetch('/users/profile');
+            if (res?.success) {
+                renderProfile(res.user);
+            }
+        });
+
+        function renderProfile(user) {
+            document.getElementById('profileAvatar').textContent = user.avatar || 'U';
+            document.getElementById('profileName').textContent = user.name || 'Anonymous';
+            document.getElementById('profileEmail').textContent = user.email || '—';
+            document.getElementById('profileRole').textContent = (user.role || 'user').charAt(0).toUpperCase() + (user.role || 'user').slice(1);
+
+            // Join date formatting
+            if (user.joinDate) {
+                const date = new Date(user.joinDate);
+                document.getElementById('joinDate').textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            }
+
+            // Stats
+            if (user.stats) {
+                document.getElementById('statsSubmissions').textContent = user.stats.submissions || 0;
+                document.getElementById('statsVerified').textContent = user.stats.verified || 0;
+            }
+        }
+    </script>
+
+</body>
+
+</html>

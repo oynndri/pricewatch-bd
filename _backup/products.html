@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Products — PriceWatch BD</title>
+    <meta name="description" content="Browse and search prices of all essential products tracked by PriceWatch BD." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="products.html" class="active">Products</a>
+                <a href="markets.html">Markets</a>
+                <a href="trending.html">Trending</a>
+                <a href="submit.html">Submit Price</a>
+            </nav>
+            <div class="nav-right" id="navRight"></div>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-banner">
+        <div class="container">
+            <h1>All Products</h1>
+            <p>Browse, search, and compare prices of all tracked essential products</p>
+        </div>
+    </div>
+
+    <main class="page" style="padding-top:0">
+        <div class="container">
+            <!-- Search + filter -->
+            <div class="filters-bar">
+                <div class="filter-group" style="flex:2">
+                    <label>Search Product</label>
+                    <div style="position:relative">
+                        <span
+                            style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-400)">🔍</span>
+                        <input type="text" id="searchInput" placeholder="Rice, onion, egg..."
+                            style="padding-left:38px" />
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="catFilter">
+                        <option value="">All Categories</option>
+                        <option value="rice">🌾 Rice</option>
+                        <option value="vegetables">🥬 Vegetables</option>
+                        <option value="eggs">🥚 Eggs</option>
+                        <option value="oil">🫙 Oil</option>
+                        <option value="lentils">🫘 Lentils</option>
+                        <option value="others">🍬 Others</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <select id="sortFilter">
+                        <option value="name">Name</option>
+                        <option value="price_low">Price: Low to High</option>
+                        <option value="price_high">Price: High to Low</option>
+                        <option value="trend">Biggest Change</option>
+                    </select>
+                </div>
+            </div>
+            <p id="resultCount" style="font-size:.9rem;color:var(--text-muted);margin-bottom:20px"></p>
+            <div class="cards-grid" id="productsGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        style="background:var(--green-900);color:rgba(255,255,255,.6);text-align:center;padding:24px;font-size:.88rem">
+        <p>🛒 <strong style="color:white">PriceWatch BD</strong> — Community-powered price tracking</p>
+    </footer>
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="app.js"></script>
+    <script>
+        PWBD.initNav();
+
+        let allProducts = [];
+
+        async function loadProducts() {
+            allProducts = await PWBD.apiFetch('/products') || [];
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            const cat = document.getElementById('catFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+
+            let result = [...allProducts];
+            if (q) result = result.filter(p => p.nameEn.toLowerCase().includes(q) || p.name.includes(q));
+            if (cat) result = result.filter(p => p.category === cat);
+            if (sort === 'price_low') result.sort((a, b) => (a.avgPrice || 0) - (b.avgPrice || 0));
+            else if (sort === 'price_high') result.sort((a, b) => (b.avgPrice || 0) - (a.avgPrice || 0));
+            else if (sort === 'trend') result.sort((a, b) => Math.abs(b.trend) - Math.abs(a.trend));
+            else result.sort((a, b) => a.nameEn.localeCompare(b.nameEn));
+
+            document.getElementById('resultCount').textContent = `Showing ${result.length} of ${allProducts.length} products`;
+            PWBD.renderProductCards(result, document.getElementById('productsGrid'));
+        }
+
+        ['searchInput', 'catFilter', 'sortFilter'].forEach(id => {
+            document.getElementById(id).addEventListener('input', applyFilters);
+            document.getElementById(id).addEventListener('change', applyFilters);
+        });
+
+        // Pre-fill search from URL
+        const urlQ = new URLSearchParams(window.location.search).get('q');
+        if (urlQ) document.getElementById('searchInput').value = urlQ;
+
+        loadProducts();
+    </script>
+</body>
+
+</html>

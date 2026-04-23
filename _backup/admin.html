@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — PriceWatch BD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap">
+</head>
+
+<body class="bg-gray-50">
+
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+            </a>
+            <div class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+            </div>
+            <div class="nav-right" id="navRight"></div>
+        </div>
+    </nav>
+
+    <div class="page-banner">
+        <div class="container">
+            <h1>🛡️ Admin Dashboard</h1>
+            <p>Review and verify community price submissions</p>
+        </div>
+    </div>
+
+    <main class="container">
+        <div class="section-header" style="margin-top: 40px">
+            <h2 class="section-title">Pending <span>Submissions</span></h2>
+            <div id="pendingCount" class="trend-badge flat">0 pending</div>
+        </div>
+
+        <div class="table-wrap">
+            <table class="profile-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Market</th>
+                        <th>Price</th>
+                        <th>User</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingTableBody">
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:40px">Loading submissions...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await PWBD.initNav();
+            const user = PWBD.currentUser;
+            if (!user || user.role !== 'admin') {
+                window.location = 'index.html';
+                return;
+            }
+            loadPending();
+        });
+
+        async function loadPending() {
+            const res = await PWBD.apiFetch('/admin/pending-prices');
+            const body = document.getElementById('pendingTableBody');
+            const count = document.getElementById('pendingCount');
+
+            if (!res || res.length === 0) {
+                body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px">🎉 No pending submissions!</td></tr>';
+                count.textContent = '0 pending';
+                return;
+            }
+
+            count.textContent = `${res.length} pending`;
+            body.innerHTML = res.map(item => `
+                <tr>
+                    <td><strong>${item.productName}</strong></td>
+                    <td>${item.marketName}</td>
+                    <td style="color:var(--green-700);font-weight:700">৳${item.price}</td>
+                    <td><span class="trend-badge flat">${item.submittedBy}</span></td>
+                    <td style="font-size:.8rem">${new Date(item.date).toLocaleDateString()}</td>
+                    <td>
+                        <div style="display:flex;gap:8px">
+                            <button onclick="verify(${item.id}, 'approve')" class="btn-nav-submit" style="padding:4px 12px;background:var(--green-600)">Verify</button>
+                            <button onclick="verify(${item.id}, 'reject')" class="btn-nav-submit" style="padding:4px 12px;background:var(--red-500)">Reject</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function verify(id, action) {
+            const res = await PWBD.apiFetch(`/admin/verify-price/${id}`, {
+                method: 'POST',
+                body: JSON.stringify({ action })
+            });
+
+            if (res?.success) {
+                PWBD.showToast(res.message, action === 'approve' ? 'success' : 'info');
+                loadPending();
+            }
+        }
+    </script>
+</body>
+
+</html>

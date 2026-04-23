@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login / Sign Up — PriceWatch BD</title>
+    <meta name="description" content="Login or create an account on PriceWatch BD to contribute and track prices." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="markets.html">Markets</a>
+                <a href="trending.html">Trending</a>
+                <a href="submit.html">Submit Price</a>
+            </nav>
+            <div class="nav-right" id="navRight"></div>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="auth-wrap">
+        <!-- Left panel -->
+        <div class="auth-left">
+            <span class="big-emoji">🛒</span>
+            <h2>PriceWatch BD</h2>
+            <p>Join thousands of contributors helping Bangladeshis track fair market prices every day.</p>
+            <div
+                style="margin-top:40px;display:flex;flex-direction:column;gap:14px;text-align:left;max-width:280px;position:relative">
+                <div
+                    style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:14px 18px">
+                    <span style="font-size:1.4rem">📊</span>
+                    <div>
+                        <div style="color:white;font-weight:600;font-size:.9rem">Track Prices</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.8rem">Compare across 10+ markets</div>
+                    </div>
+                </div>
+                <div
+                    style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:14px 18px">
+                    <span style="font-size:1.4rem">🏆</span>
+                    <div>
+                        <div style="color:white;font-weight:600;font-size:.9rem">Earn Recognition</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.8rem">Appear on the contributors board</div>
+                    </div>
+                </div>
+                <div
+                    style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.1);border-radius:12px;padding:14px 18px">
+                    <span style="font-size:1.4rem">🔔</span>
+                    <div>
+                        <div style="color:white;font-weight:600;font-size:.9rem">Price Alerts</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.8rem">Get notified on big price changes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: form -->
+        <div class="auth-right">
+            <div class="auth-form-wrap">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Login</button>
+                    <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <div class="form-card" id="loginCard">
+                    <h2 class="form-title">Welcome back 👋</h2>
+                    <p class="form-sub">Sign in to your PriceWatch BD account</p>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="loginEmail">Email Address</label>
+                            <div class="input-icon-wrap">
+                                <span class="icon">📧</span>
+                                <input type="email" id="loginEmail" placeholder="you@example.com" required
+                                    autocomplete="email" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPass">Password</label>
+                            <div class="input-icon-wrap">
+                                <span class="icon">🔒</span>
+                                <input type="password" id="loginPass" placeholder="Your password" required
+                                    autocomplete="current-password" />
+                                <button type="button" class="password-toggle" id="loginToggle">👁</button>
+                            </div>
+                        </div>
+                        <div id="loginErr"
+                            style="display:none;background:var(--red-100);color:var(--red-500);padding:10px 14px;border-radius:10px;font-size:.88rem;margin-bottom:16px">
+                            ⚠️ Invalid email or password</div>
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Login →</button>
+                        <p style="text-align:center;margin-top:16px;font-size:.88rem;color:var(--text-muted)">
+                            Don't have an account? <span class="form-link" onclick="switchTab('register')">Sign up
+                                free</span>
+                        </p>
+                        <div
+                            style="margin-top:20px;padding:12px 16px;background:var(--green-50);border-radius:10px;border:1px solid var(--green-200)">
+                            <p style="font-size:.8rem;color:var(--green-700);font-weight:600">Demo credentials:</p>
+                            <p style="font-size:.82rem;color:var(--text-muted)">Email:
+                                <strong>admin@pricewatch.bd</strong><br>Password: <strong>admin123</strong>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Register Form -->
+                <div class="form-card" id="registerCard" style="display:none">
+                    <h2 class="form-title">Create Account 🚀</h2>
+                    <p class="form-sub">Join PriceWatch BD and start contributing</p>
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label for="regName">Full Name</label>
+                            <div class="input-icon-wrap">
+                                <span class="icon">👤</span>
+                                <input type="text" id="regName" placeholder="Your full name" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regEmail">Email Address</label>
+                            <div class="input-icon-wrap">
+                                <span class="icon">📧</span>
+                                <input type="email" id="regEmail" placeholder="you@example.com" required
+                                    autocomplete="email" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPass">Password</label>
+                            <div class="input-icon-wrap">
+                                <span class="icon">🔒</span>
+                                <input type="password" id="regPass" placeholder="Min 6 characters" required
+                                    minlength="6" autocomplete="new-password" />
+                                <button type="button" class="password-toggle" id="regToggle">👁</button>
+                            </div>
+                        </div>
+                        <div id="regErr"
+                            style="display:none;background:var(--red-100);color:var(--red-500);padding:10px 14px;border-radius:10px;font-size:.88rem;margin-bottom:16px">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="regBtn">Create Account →</button>
+                        <p style="text-align:center;margin-top:16px;font-size:.88rem;color:var(--text-muted)">
+                            Already have an account? <span class="form-link" onclick="switchTab('login')">Login
+                                here</span>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="app.js"></script>
+    <script>
+        PWBD.initNav();
+
+        function switchTab(tab) {
+            document.getElementById('tabLogin').classList.toggle('active', tab === 'login');
+            document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+            document.getElementById('loginCard').style.display = tab === 'login' ? 'block' : 'none';
+            document.getElementById('registerCard').style.display = tab === 'register' ? 'block' : 'none';
+        }
+
+        // Password toggle
+        ['loginToggle', 'regToggle'].forEach((id, i) => {
+            const btn = document.getElementById(id);
+            const inp = document.getElementById(i === 0 ? 'loginPass' : 'regPass');
+            if (btn && inp) btn.addEventListener('click', () => {
+                inp.type = inp.type === 'password' ? 'text' : 'password';
+                btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+            });
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.textContent = 'Logging in...'; btn.disabled = true;
+            const res = await PWBD.apiFetch('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value }),
+            });
+            if (res?.success) {
+                PWBD.saveUser(res.user);
+                PWBD.showToast(`Welcome back, ${res.user.name.split(' ')[0]}! 🎉`);
+                // Move immediately after showing toast (toast will persist on next page load via app.js init)
+                window.location.replace('index.html');
+            } else {
+                document.getElementById('loginErr').style.display = 'block';
+                btn.textContent = 'Login →'; btn.disabled = false;
+            }
+        });
+
+        // Register
+        document.getElementById('registerForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('regBtn');
+            btn.textContent = 'Creating account...'; btn.disabled = true;
+            const pass = document.getElementById('regPass').value;
+            if (pass.length < 6) {
+                document.getElementById('regErr').textContent = '⚠️ Password must be at least 6 characters';
+                document.getElementById('regErr').style.display = 'block';
+                btn.textContent = 'Create Account →'; btn.disabled = false; return;
+            }
+            const res = await PWBD.apiFetch('/auth/register', {
+                method: 'POST',
+                body: JSON.stringify({ name: document.getElementById('regName').value, email: document.getElementById('regEmail').value, password: pass }),
+            });
+            if (res?.success) {
+                PWBD.saveUser(res.user);
+                PWBD.showToast(`Account created! Welcome, ${res.user.name.split(' ')[0]}! 🎉`);
+                setTimeout(() => window.location = 'index.html', 1300);
+            } else {
+                const errEl = document.getElementById('regErr');
+                errEl.textContent = '⚠️ ' + (res?.error || 'Registration failed. Try again.');
+                errEl.style.display = 'block';
+                btn.textContent = 'Create Account →'; btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

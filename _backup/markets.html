@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Markets — PriceWatch BD</title>
+    <meta name="description" content="Find and compare markets across Bangladesh with price data and ratings." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">
+                <div class="logo-icon">🛒</div> Price<span class="accent">Watch</span> BD
+            </a>
+            <nav class="nav-links" id="navLinks">
+                <a href="index.html">Home</a>
+                <a href="products.html">Products</a>
+                <a href="markets.html" class="active">Markets</a>
+                <a href="trending.html">Trending</a>
+                <a href="submit.html">Submit Price</a>
+            </nav>
+            <div class="nav-right" id="navRight"></div>
+            <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+        </div>
+    </nav>
+
+    <div class="page-banner">
+        <div class="container">
+            <h1>Markets Across Bangladesh</h1>
+            <p>Find markets, compare prices, and discover the best deals near you</p>
+        </div>
+    </div>
+
+    <main class="page" style="padding-top:0">
+        <div class="container">
+            <!-- District tabs -->
+            <div class="category-pills" id="districtPills">
+                <button class="pill active" data-dist="">All Districts</button>
+                <button class="pill" data-dist="Dhaka">📍 Dhaka</button>
+                <button class="pill" data-dist="Chittagong">📍 Chittagong</button>
+                <button class="pill" data-dist="Rajshahi">📍 Rajshahi</button>
+                <button class="pill" data-dist="Sylhet">📍 Sylhet</button>
+                <button class="pill" data-dist="Khulna">📍 Khulna</button>
+            </div>
+            <!-- Type filter -->
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;flex-wrap:wrap">
+                <span style="font-size:.88rem;font-weight:600;color:var(--text-muted)">Type:</span>
+                <button class="pill active" style="padding:6px 16px" data-type="" id="typeAll">All</button>
+                <button class="pill" style="padding:6px 16px" data-type="wholesale" id="typeWhole">🏭 Wholesale</button>
+                <button class="pill" style="padding:6px 16px" data-type="retail" id="typeRetail">🏪 Retail</button>
+            </div>
+
+            <p id="resultCount" style="font-size:.9rem;color:var(--text-muted);margin-bottom:20px"></p>
+            <div class="markets-grid" id="marketsGrid">
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+
+            <!-- Price table for selected market -->
+            <div id="marketDetail" style="display:none;margin-top:40px">
+                <div class="section-header">
+                    <h2 class="section-title" id="marketDetailTitle">Market Prices</h2>
+                    <button onclick="document.getElementById('marketDetail').style.display='none'"
+                        style="background:none;border:none;font-size:.9rem;color:var(--text-muted);cursor:pointer">✕
+                        Close</button>
+                </div>
+                <div class="table-wrap" id="marketDetailTable"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer
+        style="background:var(--green-900);color:rgba(255,255,255,.6);text-align:center;padding:24px;font-size:.88rem">
+        <p>🛒 <strong style="color:white">PriceWatch BD</strong> — Community-powered price tracking</p>
+    </footer>
+    <div class="toast-container" id="toastContainer"></div>
+    <script src="app.js"></script>
+    <script>
+        PWBD.initNav();
+        let allMarkets = [];
+        let currentDist = '', currentType = '';
+
+        async function loadMarkets() {
+            allMarkets = await PWBD.apiFetch('/markets') || [];
+            renderMarkets();
+        }
+
+        function renderMarkets() {
+            let result = [...allMarkets];
+            if (currentDist) result = result.filter(m => m.district === currentDist);
+            if (currentType) result = result.filter(m => m.type === currentType);
+            result.sort((a, b) => b.rating - a.rating);
+
+            document.getElementById('resultCount').textContent = `Showing ${result.length} markets`;
+            const grid = document.getElementById('marketsGrid');
+            if (!result.length) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🏪</div><h3>No markets found</h3></div>';
+                return;
+            }
+            grid.innerHTML = result.map(m => `
+    <div class="market-card fade-up" onclick="showMarketDetail(${m.id})">
+      <div class="market-card-header">
+        <div>
+          <div class="market-name">${m.nameEn}</div>
+          <div class="market-name-bn">${m.name}</div>
+        </div>
+        <div class="market-rating">⭐ ${m.rating}</div>
+      </div>
+      <div class="market-info">📍 ${m.location}, ${m.district}</div>
+      <div class="market-info" style="margin-top:4px">${m.description}</div>
+      <div class="market-footer">
+        <span class="market-badge ${m.type}">${m.type === 'wholesale' ? '🏭 Wholesale' : '🏪 Retail'}</span>
+        ${m.verified ? '<span class="verified-badge">✅ Verified</span>' : '<span style="font-size:.8rem;color:var(--text-muted)">Unverified</span>'}
+      </div>
+      <div style="margin-top:12px;font-size:.82rem;color:var(--text-muted)">📊 ${m.totalPrices} price updates · <span style="color:var(--green-600);font-weight:600">View prices →</span></div>
+    </div>`).join('');
+        }
+
+        async function showMarketDetail(id) {
+            const m = await PWBD.apiFetch('/markets/' + id);
+            if (!m) return;
+            document.getElementById('marketDetailTitle').textContent = `${m.nameEn} — Price List`;
+            const prices = m.prices || [];
+            const table = document.getElementById('marketDetailTable');
+            if (!prices.length) {
+                table.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><h3>No prices recorded yet</h3></div>';
+            } else {
+                table.innerHTML = `<table>
+      <thead><tr><th>Product</th><th>Price (৳)</th><th>Unit</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody>${prices.map(e => `
+        <tr>
+          <td><div class="td-product"><span class="td-icon">${e.product?.icon || '📦'}</span><div><div style="font-weight:600">${e.product?.nameEn || 'Unknown'}</div><div style="font-size:.8rem;color:var(--text-muted)">${e.product?.name || ''}</div></div></div></td>
+          <td style="font-weight:800;color:var(--green-700);font-size:1.05rem">৳${e.price}</td>
+          <td>per ${e.product?.unit || '—'}</td>
+          <td>${e.date}</td>
+          <td>${e.verified ? '<span style="color:var(--green-600);font-weight:600">✅ Verified</span>' : '<span style="color:var(--gray-400)">Pending</span>'}</td>
+        </tr>`).join('')}</tbody></table>`;
+            }
+            document.getElementById('marketDetail').style.display = 'block';
+            document.getElementById('marketDetail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Filters
+        document.querySelectorAll('[data-dist]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-dist]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentDist = btn.dataset.dist;
+                renderMarkets();
+            });
+        });
+        ['typeAll', 'typeWhole', 'typeRetail'].forEach(id => {
+            document.getElementById(id).addEventListener('click', () => {
+                ['typeAll', 'typeWhole', 'typeRetail'].forEach(i => document.getElementById(i).classList.remove('active'));
+                document.getElementById(id).classList.add('active');
+                currentType = document.getElementById(id).dataset.type;
+                renderMarkets();
+            });
+        });
+
+        loadMarkets();
+    </script>
+</body>
+
+</html>
